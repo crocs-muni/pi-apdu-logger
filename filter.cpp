@@ -11,8 +11,6 @@ using namespace std;
  */
 
 #define SAMPLE_SIZE 6.5
-/*#define INPUT_FILE "data/sample1.txt"				//"data/raw_data.txt"
-#define OUTPUT_FILE "data/sample1_f.txt"*/			//"data/filtered_data.txt"
 
 
 int convertToInt(vector<char> value) {

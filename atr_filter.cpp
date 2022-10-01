@@ -11,10 +11,7 @@ using namespace std;
 	whereas for the rest of the communication there
 	are approximately 6.5 samples per single bit.
  */
-
 #define SAMPLE_SIZE 4
-/*#define INPUT_FILE "data/sample1_f.txt"				//"data/filtered_data.txt"
-#define OUTPUT_FILE "data/sample1_atr.txt"	*/		//"data/atr_filtered.txt"
 
 
 int convertToInt(vector<char> value) {

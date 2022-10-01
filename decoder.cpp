@@ -5,8 +5,6 @@
 using namespace std;
 
 #define DATA_SIZE 10 /* 10 bits per data block */
-/*#define INPUT_FILE "data/sample1_atr.txt"			//"data/filtered_data.txt"
-#define OUTPUT_FILE "data/sample1_d.txt"*/		//"data/decoded_data.txt"
 
 
 void read(ifstream &in, string &string) {
