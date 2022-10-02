@@ -77,7 +77,9 @@ void decode(ifstream &indata, ofstream &outdata) {
 
 int main(int argc, char **argv) 
 {
-	if(argc !=3) {
+    printf("INFO: Running decoder.exe\n");
+    
+    if(argc !=3) {
 		cerr << "Error: Invalid number of arguments!" << endl;
 		exit(1);
 	}

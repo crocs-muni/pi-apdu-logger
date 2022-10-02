@@ -1,4 +1,5 @@
 import string
+import os
 
 """
 This function compares the hex dump from gp.exe and hex dump captured by RaspberryPi.
@@ -33,6 +34,7 @@ def compare_files(in_file1_path: string, in_file2_path: string, output_file_path
 if __name__ == "__main__":
     import sys
 
+    print("INFO: Comparing expected and captured data...")
     if len(sys.argv) != 4:
         print(f"USAGE: python {sys.argv[0]} <TEMPLATE DATA FILE PATH> <CAPTURED DATA FILE PATH> <COMPARISON RESULT FILE PATH>")
         sys.exit()

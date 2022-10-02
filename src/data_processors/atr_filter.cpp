@@ -6,11 +6,12 @@
 
 using namespace std;
 
-/* Filtering raw_data with sample size 6.5 and rounding either up or down, 
- * depending on the value obtained 
+/* Filtering raw_data with sample size 4 again because for the 
+	ATR  and PTS there are 26 samples per single bit,
+	whereas for the rest of the communication there
+	are approximately 6.5 samples per single bit.
  */
-
-#define SAMPLE_SIZE 6.5
+#define SAMPLE_SIZE 4
 
 
 int convertToInt(vector<char> value) {
@@ -35,10 +36,10 @@ void filter(ifstream &indata, ofstream &outdata) {
 	int char_count = 0;
 	vector<char> sample;
 	bool start = true;
-	
+
 	while(!indata.eof()) 
 	{
-		/*skip the initial zeros*/
+		/*skip the initial ones*/
 		while(start) {
 			indata.get(current_bit);
 			if(indata.peek() != current_bit) start = false;
@@ -57,18 +58,18 @@ void filter(ifstream &indata, ofstream &outdata) {
 			for(int i = 0; i < res; i ++) {
 				outdata << current_bit;
 			}
-			if(char_count == 80) {
-				outdata << '\n';
-				char_count = 0;
-			}
-		
+		}
+        if(char_count == 10000) {
+			break;
 		}
 	}
 }
 
 int main(int argc, char **argv) 
 {
-	if(argc !=3) {
+	printf("INFO: Running atr_filter.exe\n");
+    
+    if(argc !=3) {
 		cerr << "Error: Invalid number of arguments!" << endl;
 		exit(1);
 	}
@@ -77,12 +78,11 @@ int main(int argc, char **argv)
 	ofstream outdata;
 	string inputfile = argv[1]; //first argument is input file name
 	string outputfile = argv[2]; //second argument is output file name
-	
+
 	printf("Open reading file...\n");
 	indata.open(inputfile);
 	printf("Open writing file...\n");
 	outdata.open(outputfile);
-	
 	if(!indata) {
 		cerr << "Error: file to read from could not be opened!" << endl;
 		exit(1);
@@ -98,6 +98,6 @@ int main(int argc, char **argv)
 	indata.close();
 	outdata.close();
 	cout << "Finish filtering data." << endl;
-	
+
 	return 0;
 }

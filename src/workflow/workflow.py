@@ -18,7 +18,7 @@ for filename in os.listdir(rawDataDir):
     # checking if it is a file
     if os.path.isfile(f):
         name = str(filename).replace(".txt", "_f.txt")
-        os.system(f'cmd /c .\\filter.exe "{f}" "data/filtered/{name}"')
+        os.system(f'cmd /c .\\exec\\data_processors\\filter.exe "{f}" "data/filtered/{name}"')
 
 # iterate over once filtered data files and filter them again to get the ATR
 for filename in os.listdir(filteredDataDir):
@@ -26,7 +26,7 @@ for filename in os.listdir(filteredDataDir):
     # checking if it is a file
     if os.path.isfile(f):
         name = str(filename).replace("_f", "_atr")
-        os.system(f'cmd /c .\\atr_filter.exe "{f}" "data/atr_filtered/{name}"')
+        os.system(f'cmd /c .\\exec\\data_processors\\atr_filter.exe "{f}" "data/atr_filtered/{name}"')
 
 # append the rest of the communication to the atr file
 files1 = os.listdir(filteredDataDir)
@@ -44,7 +44,7 @@ for filename in os.listdir(atrFilteredDir):
     # checking if it is a file
     if os.path.isfile(f):
         name = str(filename).replace("_atr", "_d")
-        os.system(f'cmd /c .\\decoder.exe "{f}" "data/decoded/{name}"')
+        os.system(f'cmd /c .\\exec\\data_processors\\decoder.exe "{f}" "data/decoded/{name}"')
 
 # compare the decoded files to the GP output
 for filename in os.listdir(decodedDataDir):
@@ -52,4 +52,4 @@ for filename in os.listdir(decodedDataDir):
     # checking if it is a file
     if os.path.isfile(f):
         name = str(filename).replace("_d", "_r")
-        os.system(f'cmd /c python .\\compareFiles.py ".\\data\GP_out_formatted.txt" "{f}" "data/results/{name}"')
+        os.system(f'cmd /c python .\\src\\workflow\\compareFiles.py ".\\data\GP_out_formatted.txt" "{f}" "data/results/{name}"')
