@@ -1,19 +1,38 @@
-// Code source: https://www.geeksforgeeks.org/socket-programming-cc/
+/* 
+    Code source: https://www.geeksforgeeks.org/socket-programming-cc/
+    TCP server code for Windows
+    Usage: server.exe <SERVER IP ADDRESS> <SERVER PORT>
+*/
 
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <tchar.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <windows.h>
 
-#if defined(_WIN32) || defined(_WIN64)
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #include <windows.h>
-#else
-    #include <sys/socket.h>
-    #include <arpa/inet.h>
-#endif
+#define BUFF 1024
+
+void write_file(int sockfd){
+  int status;
+  FILE *fp;
+  char filename[] = "recv.txt";
+  char buffer[BUFF];
+ 
+  fp = fopen(filename, "w");
+  while (1) {
+    status = recv(sockfd, buffer, BUFF, 0);
+    if (status <= 0) {
+      break;
+      return;
+    }
+    fprintf(fp, "%s", buffer);
+    memset(buffer, 0, BUFF);
+  }
+  return;
+}
 
 int main(int argc, char *argv[]) {
 
@@ -22,16 +41,14 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-//Initialize Windows Sockets subsystem
-#if defined(_WIN32) || defined(_WIN64)    
+//Initialize Windows Sockets subsystem  
     WSADATA wsa_data;
-    if (WSAStartup(MAKEWORD(2,2),&wsa_data) != NO_ERROR) {
+    if (WSAStartup(MAKEWORD(2,2),&wsa_data) < 0) {
         printf("\nERR: Windows socket subsystem could not be initialized. Error Code: %d. Exiting..\n", WSAGetLastError());
         exit(EXIT_FAILURE);
     }
-#endif
 
-    SOCKET server_soc = INVALID_SOCKET, data_soc = INVALID_SOCKET;
+    SOCKET server_soc = -1, data_soc = -1;
     int valread;
     struct sockaddr_in server;
     int addrlen = sizeof(server);
@@ -39,7 +56,7 @@ int main(int argc, char *argv[]) {
     char recvbuf[1024] = {0};
     
     //Create a socket descriptor
-    if((server_soc = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET)    {
+    if((server_soc = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)    {
         printf("ERR: Could not create socket: %s. Exiting..\n", strerror(errno));
         WSACleanup();
         exit(EXIT_FAILURE);
@@ -50,7 +67,7 @@ int main(int argc, char *argv[]) {
     server.sin_port = htons(atoi(argv[2]));         // second argument is port number
 
     // Bind the socket to the local IP address and port 
-    if (bind(server_soc, (struct sockaddr*) &server, sizeof(server)) == SOCKET_ERROR) {
+    if (bind(server_soc, (struct sockaddr*) &server, sizeof(server)) < 0) {
         closesocket(server_soc);
         WSACleanup();
         perror("Socket to IP address and port binding failed!");
@@ -62,37 +79,28 @@ int main(int argc, char *argv[]) {
         perror("Listening on socket failed!");
         exit(EXIT_FAILURE);
     }
-    if ((data_soc = accept(server_soc, (struct sockaddr*) &server, (socklen_t*)&addrlen)) == INVALID_SOCKET) {
+    if ((data_soc = accept(server_soc, (struct sockaddr*) &server, (socklen_t*)&addrlen)) < 0) {
         closesocket(server_soc);
         WSACleanup();
         perror("Accepting on socket failed!");
         exit(EXIT_FAILURE);
     }
     
-    
-    #if defined(_WIN32) || defined(_WIN64)  
-        valread = recv(data_soc, recvbuf, 1024, 0);
-    #else
-        valread = read(data_soc, recvbuf, 1024);
-    #endif
+    valread = recv(data_soc, recvbuf, 1024, 0);
 
     printf("%s\n", recvbuf);
     send(data_soc, sendbuf, strlen(sendbuf), 0);
     printf("INFO: Smartcard communication started..\n");
     printf("GP.EXE: ");
     system("gp --applet 73696D706C656170706C6574 --apdu B0570000023131 -d > GP_out.txt");
+    write_file(data_soc);
+    printf("INFO: File received successfully.\n");
 
     // Close the socket
-#if defined(_WIN32) || defined(_WIN64)  
     shutdown(server_soc, SD_BOTH);
     closesocket(server_soc);
     closesocket(data_soc);
     WSACleanup();
-#else
-    shutdown(server_soc, SHUT_RDWR);
-    close(server_soc)
-    close(data_soc);
-#endif
-
+    
     exit(EXIT_SUCCESS);
 }
