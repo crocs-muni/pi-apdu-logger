@@ -41,7 +41,7 @@ void decode(ifstream &indata, ofstream &outdata) {
 	current_bit.resize(DATA_SIZE); 
 	int char_position = 0;
 	int number_of_ones = 0;
-	bool pause = false;
+    bool pause = false;
 
 	while(!indata.eof()) 
 	{
@@ -58,19 +58,19 @@ void decode(ifstream &indata, ofstream &outdata) {
         char_position += DATA_SIZE;
         /* Save the new position in the data stream */
         indata.seekg(char_position);
+        number_of_ones = 0;
+        pause = false;
 		/* There is a short pause between successive atr data blocks*/
 		while(indata.peek() != '0') {
 			if(indata.eof()) break;
 			indata.seekg(++char_position);
 			number_of_ones++;
-			if(number_of_ones > 360) {
-				pause = true;
-				number_of_ones = 0;
+             /*pause between two successive bytes is equal to 2 samples of logic level 1
+             more than 2 samples mean that another APDU is being sent*/
+            if(number_of_ones > 5 && !pause) {
+				outdata << '\n';
+                pause = true;
 			}
-		}
-		if(pause) {
-			/*outdata << '\n';*/
-			pause = false;
 		} 
 	}
 }
@@ -91,13 +91,13 @@ int main(int argc, char **argv)
 
 	printf("Open reading file...\n");
 	indata.open(inputfile);
-	printf("Open writing file...\n");
-	outdata.open(outputfile);
-	
-	if(!indata) {
+    if(!indata) {
 		cerr << "Error: file to read from could not be opened!" << endl;
 		exit(1);
 	}
+
+	printf("Open writing file...\n");
+	outdata.open(outputfile);
 	if(!outdata) {
 		cerr << "Error: file to write to could not be opened!" << endl;
 		exit(1);

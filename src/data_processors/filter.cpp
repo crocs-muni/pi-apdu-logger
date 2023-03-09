@@ -10,24 +10,11 @@ using namespace std;
  * depending on the value obtained 
  */
 
-#define SAMPLE_SIZE 6.5
+#define SAMPLE_SIZE 6.5 //determined by counter.cpp
 
 
 int convertToInt(vector<char> value) {
-	double zeros_count = 0;
-	double ones_count = 0;
-	int result = 0;
-	for(int i = 0; i < value.size(); i++) {
-		if(value[i] == '0') zeros_count++;
-		else ones_count++;
-	}
-	if(zeros_count < ones_count) {
-		result = round(ones_count / SAMPLE_SIZE);
-	}
-	else {
-		result = round(zeros_count / SAMPLE_SIZE);
-	}
-	return result;
+	return round((double)value.size() / SAMPLE_SIZE);
 }
 
 void filter(ifstream &indata, ofstream &outdata) {
@@ -46,7 +33,7 @@ void filter(ifstream &indata, ofstream &outdata) {
 		
 		/*read one character from input file*/
 		indata.get(current_bit);
-		char_count ++;
+		// char_count ++;
 		sample.push_back(current_bit);
 		
 		if(indata.eof()) break;
@@ -57,11 +44,10 @@ void filter(ifstream &indata, ofstream &outdata) {
 			for(int i = 0; i < res; i ++) {
 				outdata << current_bit;
 			}
-			if(char_count == 80) {
-				outdata << '\n';
-				char_count = 0;
-			}
-		
+			// if(char_count == 80) {
+			// 	outdata << '\n';
+			// 	char_count = 0;
+			// }
 		}
 	}
 }
@@ -82,13 +68,15 @@ int main(int argc, char **argv)
 	
 	printf("Open reading file...\n");
 	indata.open(inputfile);
-	printf("Open writing file...\n");
-	outdata.open(outputfile);
-	
-	if(!indata) {
+    
+    if(!indata) {
 		cerr << "Error: file to read from could not be opened!" << endl;
 		exit(1);
 	}
+
+	printf("Open writing file...\n");
+	outdata.open(outputfile);
+	
 	if(!outdata) {
 		cerr << "Error: file to write to could not be opened!" << endl;
 		exit(1);
