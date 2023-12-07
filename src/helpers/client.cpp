@@ -1,6 +1,7 @@
 /* 
     Code source: https://www.geeksforgeeks.org/socket-programming-cc/
     TCP client code for Raspberry PI
+    g++ -o ./build/client ./src/app/client.cpp
     Usage: client <SERVER IP ADDRESS> <SERVER PORT>
 */
 
@@ -13,8 +14,30 @@
 #include <arpa/inet.h>
 #include <sys/stat.h>
 #include <math.h>
+#include <vector>
+#include <algorithm>
 
 #define BUFFER_SIZE 16384
+
+std::vector<int> calculateDigits(int number) {
+    std::vector<int> digits;
+    while(number > 0) {
+	digits.push_back(number % 10);
+	number/=10;
+    }
+    std::reverse(digits.begin(), digits.end());
+    return digits;
+}
+
+char* constructFilename(std::vector<int> digits) {
+    char filename[] = "_data.txt";
+    char* fullname = (char *)malloc(digits.size() + strlen(filename) + 1);
+    for(int i=0; i < digits.size(); i++) {
+	fullname[i] = digits[i] + '0';
+    }
+    strcat(fullname, filename);
+    return fullname;
+}
 
 int main(int argc, char const* argv[]) {
 
@@ -26,11 +49,11 @@ int main(int argc, char const* argv[]) {
     int client_soc = -1;
     struct sockaddr_in server_addr;
     FILE *fp;
-    char filename[] = "1_raw.txt";
+    int ctr = 1; //sample counter
+    char* filename;
     char syncbuf[] = "####";
     char recvbuf[5] = {0};
-    int ctr = 1;
-    char run[] = "./executables/capture ";
+    char run[] = "./executables/pigpio_sampler ";
 
     //Create a socket for connecting to server
     if ((client_soc = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
@@ -52,6 +75,8 @@ int main(int argc, char const* argv[]) {
     }
 
     while(true) {
+	std::vector<int> ctr_digits = calculateDigits(ctr);
+	filename = constructFilename(ctr_digits);
 	char* command;
 	command = (char *)malloc(strlen(run) + strlen(filename) + 1);
 	strcpy(command, run);
@@ -62,8 +87,9 @@ int main(int argc, char const* argv[]) {
         printf("INFO: Capturing started..\n");
         system(command); //start capturing
 	free(command);
+	free(filename);
 
-        printf("INFO: Awaiting server signal...\n");
+        printf("INFO: Awaiting server signal..\n");
 	memset(recvbuf, 0, sizeof(recvbuf)); //clear the buffer
 	recv(client_soc, recvbuf, sizeof(recvbuf),0);
 	printf(">> %s\n", recvbuf);
@@ -73,7 +99,8 @@ int main(int argc, char const* argv[]) {
 	    break;
 	}
 	ctr +=1;
-	filename[0] = ctr + '0';
+	printf("INFO: Sleeping for 10 seconds..\n");
+	sleep(10); //waiting for the card to have 0 on the I/O pin
     }
     
     //Close client socket

@@ -1,7 +1,8 @@
 /* 
-    Code source: https://www.geeksforgeeks.org/socket-programming-cc/
+    Code source: https://www.geeksforgeeks.org/socket-programming-cc/ adapted for the purpose of Windows-Raspberry Pi testing
     TCP server code for Windows
-    Usage: server.exe <SERVER IP ADDRESS> <SERVER PORT>
+    Usage: .\build\server.exe <SERVER IP ADDRESS> <SERVER PORT>
+    g++ -o .\build\server.exe .\src\helpers\server.cpp -lws2_32
 */
 
 #include <stdio.h>
@@ -61,19 +62,11 @@ int main(int argc, char *argv[]) {
     }
 
     char command[1200];
-    int repetitions = 5;
-    printf("Enter the command to execute: ");
+    int repetitions = 100;
+    
+    printf("Enter the command to execute with gp.exe: ");
     scanf("%[^\n]s", &command);
     printf("Command to execute : %s", command);
-    // fflush(stdin);
-    // printf("Enter the number of repetitions: ");
-    // scanf("%d", &repetitions);
-
-    // FILE *commands_file = fopen(filename, "r"); //file with the GP commands
-    // if(commands_file == NULL) {
-    //     perror("Unable to open file!");
-    //     exit(EXIT_FAILURE);
-    // }
     
     printf("\nWaiting for the client connection.. \n");
     if (listen(server_soc, 1) < 0) {
@@ -92,8 +85,6 @@ int main(int argc, char *argv[]) {
     }
  
     for(int i = 0; i < repetitions; i++) { 
-        // fgets(command, sizeof(command), commands_file); //read a the command from file object and put it into a char array
-        
         printf("INFO: Awaiting client signal..\n");
         memset(recvbuf, sizeof(recvbuf), 0); //clear the syncbuf
         recv(data_soc, recvbuf, sizeof(recvbuf), 0);
@@ -103,7 +94,6 @@ int main(int argc, char *argv[]) {
         printf("INFO: Executing %s\n", command);
         system(command);
         
-        // memset(command, sizeof(command), 0); //clear the command char array
         if(i == repetitions-1) {
             printf("INFO: Sending stop signal to the client.\n");
             send(data_soc, stopbuf, strlen(stopbuf), 0); //send stop message
@@ -113,7 +103,6 @@ int main(int argc, char *argv[]) {
             send(data_soc, syncbuf, strlen(syncbuf), 0); //send the sync command
         }
     } 
-    // fclose(commands_file);
 
     // Close the socket
     printf("INFO: No further data, exiting...\n");

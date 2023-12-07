@@ -32,7 +32,6 @@
 *.app
 
 .vscode
-/exec/
+/build/
 /tested_cards/
-/data/
-/src/workflow/byteComparer.py
+/src_2/
