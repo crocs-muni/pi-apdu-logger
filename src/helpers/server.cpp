@@ -1,5 +1,5 @@
 /* 
-    Code source: https://www.geeksforgeeks.org/socket-programming-cc/ adapted for the purpose of Windows-Raspberry Pi testing
+    Code: https://www.geeksforgeeks.org/socket-programming-cc/ adapted for the purpose of Windows-Raspberry Pi testing
     TCP server code for Windows
     Usage: .\build\server.exe <SERVER IP ADDRESS> <SERVER PORT>
     g++ -o .\build\server.exe .\src\helpers\server.cpp -lws2_32

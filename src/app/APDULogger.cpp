@@ -93,7 +93,7 @@ class BlockFrame
 };
 
 
-class Logger 
+class Formatter 
 {
     std::string atr;
     std::string cardEnd;
@@ -114,7 +114,6 @@ class Logger
     {
         this -> endAtr = endAtr.erase(endAtr.size() - 2);
     }
-    
     std::string getATR()
     {
         return atr;
@@ -198,12 +197,12 @@ int main(int argc, char **argv)
     std::fstream indata = fileManager.openFile(DECODED, std::ios::in);
     std::vector<std::string> fileContent = fileManager.readFile(indata);
     
-    Logger logger = Logger();
-    logger.setATR(fileContent[0]);
-    //logger.setEndATR(fileContent[fileContent.size() - 1]);
-    logger.updateBlockFrames(fileContent);
-    logger.updateAPDUs();
-    logger.printLog();
+    Formatter formatter = Formatter();
+    formatter.setATR(fileContent[0]);
+    formatter.setEndATR(fileContent[fileContent.size() - 1]);
+    formatter.updateBlockFrames(fileContent);
+    formatter.updateAPDUs();
+    formatter.printLog();
 
 	return 0;
 }

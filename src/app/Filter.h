@@ -6,6 +6,7 @@
 #include <cmath>
 #include "FileManager.h"
 
+//counter module is used to compute approximate values for sample sizes
 #define ATR_SS 98.5
 #define NON_ATR_SS 19.5
 

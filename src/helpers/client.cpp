@@ -1,5 +1,5 @@
 /* 
-    Code source: https://www.geeksforgeeks.org/socket-programming-cc/
+    Code: https://www.geeksforgeeks.org/socket-programming-cc/ adapted for the purpose of Windows-Raspberry Pi testing
     TCP client code for Raspberry PI
     g++ -o ./build/client ./src/app/client.cpp
     Usage: client <SERVER IP ADDRESS> <SERVER PORT>

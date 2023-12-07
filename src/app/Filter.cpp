@@ -22,22 +22,19 @@ void Filter::countBitRepetitions()
 
     while(!fileStream.eof()) 
     { 
-        /*count the number of occurences of the same character*/
-        fileStream.get(current_bit);
+        fileStream.get(current_bit); // count the number of occurences of the same character
         count++;
         
         if(fileStream.eof()) break;
 
-        /*check whether next and current bit characters are different*/
         if(fileStream.peek() != current_bit) {
-            /*push back the current sample count and reset the counter*/
             p.first = count;
             p.second = current_bit;
             ssizes.push_back(p);
             count = 0;
         }
     }   
-    /*remove the first and last sample counts because they are card init and disconnect*/
+    // remove the first and last sample counts because they are card init and disconnect
     ssizes.erase(ssizes.begin());
     ssizes.erase(ssizes.end());
 }
@@ -49,12 +46,12 @@ int Filter::filterData(int start_index)
     
     while(i < ssizes.size())
     {
-        /*How many 0 or 1 to write to character frame*/
-        int repetitions = determineBitRepetitions(ssizes[i].first);
+        int repetitions = determineBitRepetitions(ssizes[i].first); // How many 0 or 1 to write to character frame
         
-        /*There cannot be more than 9 consecutive 1 in a character frame
-        * Highest possible repetitions count for consecutive 1 bits is in the case of
-        * character frame 0011111111 followed by 11 for the pause, making in total 11
+        /*
+            There cannot be more than 9 consecutive 1 in a character frame
+            Highest possible repetitions count for consecutive 1 bits is in the case of
+            character frame 0011111111 followed by 11 for the pause, making in total 11
         */
         if(ssizes[i].second == '1' && repetitions > 11)
         {   
@@ -66,8 +63,7 @@ int Filter::filterData(int start_index)
             character.insert(character.end(), repetitions, ssizes[i].second);
         }
 
-        /*Stop after reaching a long pause*/
-        if(ssizes[i].second == '1' && ssizes[i].first > ATR_SS*11)
+        if(ssizes[i].second == '1' && ssizes[i].first > ATR_SS*11) // Stop after reaching a long pause
         {
             // std::cout << "DBG: Pause length: " << ssizes[i].first <<std::endl;
             return i+1;

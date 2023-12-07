@@ -7,6 +7,11 @@
 
 using namespace std;
 
+/* 
+    This is a helper module for the APDULogger
+    It prints a histogram of possible sample sizes for the Filter module
+*/
+
 int main(int argc, char **argv) 
 {
 	char filename[20];
@@ -33,21 +38,19 @@ int main(int argc, char **argv)
     cout << "Computing histogram... " << endl;
     while(!indata.eof()) 
 	{
-		/*read one character from input file*/
 		indata.get(current_bit);
         sample++;
         if(indata.eof()) break;
 
         if(indata.peek() != current_bit) {
-            /*push back the current frequency and reset the counter*/
-			frequencies.push_back(sample);
+			frequencies.push_back(sample); //push back the current frequency and reset the counter
 			sample = 0;
         }
 	}
 	indata.close();
 	
     for (auto it = frequencies.begin(); it != frequencies.end(); it++) {
-        if(*it <= 100) histogram[*it]++; /* compute a histogram of possible sample sizes*/
+        if(*it <= 100) histogram[*it]++; //compute a histogram of possible sample sizes
 	}
 
     cout << endl << "-----------------Simple histogram-----------------" << endl;

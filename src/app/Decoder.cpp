@@ -46,12 +46,11 @@ std::string Decoder::convertToHex(std::string binary)
 {
     if (getConvention() == direct)
     {
-        /* LSB is the first bit, MSB is the last bit in the original byte*/
-	    reverse(binary, binary.length()-2, 1);
+	    reverse(binary, binary.length()-2, 1); // LSB is the first bit, MSB is the last bit in the original byte
     }
-	/* discard 1st - start and 10th - parity bit */
+	
 	int result = 0;
-	for(int i = 1; i < binary.length() - 1; i++)
+	for(int i = 1; i < binary.length() - 1; i++) // discard 1st - start and 10th - parity bit 
     { 
 		result *= 2;
 		result += binary[i] == '1' ? 1 : 0;
