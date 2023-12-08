@@ -39,10 +39,23 @@ void Filter::countBitRepetitions()
     ssizes.erase(ssizes.end());
 }
 
+std::pair<int,int> Filter::findLongestPauses()
+{
+    std::vector<int> pauses;
+
+    for(auto it = ssizes.begin(); it < ssizes.end(); it++) {
+        if(it -> second == '1') {
+            pauses.push_back(it -> first);
+        }
+    }
+
+    sort(pauses.begin(), pauses.end(), std::greater<int>());
+    return std::make_pair(pauses[0], pauses[1]);
+}
+
 int Filter::filterData(int start_index)
 {
-    /*Start index for the ssizes vector*/
-    int i = start_index;
+    int i = start_index; // Start index for the ssizes vector
     
     while(i < ssizes.size())
     {
@@ -65,7 +78,6 @@ int Filter::filterData(int start_index)
 
         if(ssizes[i].second == '1' && ssizes[i].first > ATR_SS*11) // Stop after reaching a long pause
         {
-            // std::cout << "DBG: Pause length: " << ssizes[i].first <<std::endl;
             return i+1;
         }
         i++;
@@ -74,35 +86,32 @@ int Filter::filterData(int start_index)
 
 void Filter::filterWithVariableSS()
 {
-    
     std::cout << "DBG: Opening raw.txt for reading.."  <<std::endl;
     fileStream = fileManager.openFile(RAW, std::ios::in);
     countBitRepetitions();
     fileStream.close();
+    std::pair<int,int> pauses = findLongestPauses();
     
     setSampleSize(ATR_SS);
     int index = 0;
     
-    for(int i=0; i < 20; i++) //ensure loop termination
+    while(true)
     { 
         // std::cout << "DBG: Filtering data with sample size: " << ssize <<std::endl;
         
         int next_index = filterData(index);
         index = next_index;
 
-        if(i < 2) 
-        {
+        if(ssizes[index].first < ssize)
             setSampleSize(ssizes[index].first);
-        } 
-        else if(round(ssizes[index].first / ATR_SS ) == 1) // The ATR is sent one more time at the end of the communication
-        { 
-            setSampleSize(ATR_SS);
-            filterData(index); //filter the end ATR and exit
-            break;
-        }
-        else
-        {
+
+        if(ssizes[index - 1].first == pauses.first) //after reaching the longest pause sample with non_atr ss
             setSampleSize(NON_ATR_SS);
+
+        if(ssizes[index - 1].first == pauses.second) { // The ATR is sent one more time at the end of the communication
+            setSampleSize(ATR_SS);
+            filterData(index);
+            break;
         }
     }
 
