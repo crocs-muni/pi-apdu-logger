@@ -15,15 +15,16 @@ using namespace std;
 int main(int argc, char **argv) 
 {
 	char filename[20];
-    ifstream indata;
+  ifstream indata;
     
-    cout << "Enter raw data file name: ";
-    cin >> filename;
+	cout << "Enter raw data file name: ";
+	cin >> filename;
     
 	cout << "Opening file " << filename << "..." << endl;
 	
-    indata.open(filename);
-	if(!indata) {
+  indata.open(filename);
+	if(!indata)
+	{
 		cerr << "Error: file to read from could not be opened!" << endl;
 		exit(1);
 	}
@@ -35,29 +36,31 @@ int main(int argc, char **argv)
 	vector<int> histogram(100, 0);
 	
 	
-    cout << "Computing histogram... " << endl;
-    while(!indata.eof()) 
+  cout << "Computing histogram... " << endl;
+  while(!indata.eof()) 
 	{
 		indata.get(current_bit);
-        sample++;
-        if(indata.eof()) break;
+		sample++;
+		if(indata.eof()) break;
 
-        if(indata.peek() != current_bit) {
+    if(indata.peek() != current_bit)
+		{
 			frequencies.push_back(sample); //push back the current frequency and reset the counter
 			sample = 0;
-        }
+    }
 	}
 	indata.close();
 	
-    for (auto it = frequencies.begin(); it != frequencies.end(); it++) {
-        if(*it <= 100) histogram[*it]++; //compute a histogram of possible sample sizes
+	for (auto it = frequencies.begin(); it != frequencies.end(); it++)
+	{
+		if(*it <= 100) histogram[*it]++; //compute a histogram of possible sample sizes
 	}
 
-    cout << endl << "-----------------Simple histogram-----------------" << endl;
-    for (int i=1; i<histogram.size(); i++) {
-        cout << "Sample size " << i << " observed " << histogram[i] << " time(s)." <<endl;
+	cout << endl << "-----------------Simple histogram-----------------" << endl;
+	for (int i=1; i<histogram.size(); i++)
+	{
+		cout << "Sample size " << i << " observed " << histogram[i] << " time(s)." <<endl;
 	}
     
-
 	return 0;
 }
