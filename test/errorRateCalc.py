@@ -1,24 +1,24 @@
 import re
 import os
 
-resultDataDir = "tested_cards\\nxp_j2e081\\results"
-cmd = "cmd_6"
+resultDataDir = "tested_cards\\javacos_a40\\results"
+# cmd = "cmd_1"
 error_rate_list = []
 
 for dirname in os.listdir(resultDataDir):
     d = os.path.join(resultDataDir + os.sep, dirname)
-    if(dirname== cmd):
-        for filename in os.listdir(d):
-            f = os.path.join(d + os.sep, filename)
-            if os.path.isfile(f):
-                input = open(f, "r")
-                # print("Analyzing file: ", f)
-                content = input.read()
-                x = re.findall("Error rate: \d.\d\d|Error rate: \d.\d|Error rate: \d\d.\d\d", content)
-                # print(x)
-                if(len(x) != 0):
-                    if (x[0]) not in error_rate_list:
-                        error_rate_list.append((x[0]))
+    # if(dirname== cmd):
+    for filename in os.listdir(d):
+        f = os.path.join(d + os.sep, filename)
+        if os.path.isfile(f):
+            input = open(f, "r")
+            # print("Analyzing file: ", f)
+            content = input.read()
+            x = re.findall("Error rate: \d.\d\d|Error rate: \d.\d|Error rate: \d\d.\d\d", content)
+            # print(x)
+            if(len(x) != 0):
+                if (x[0]) not in error_rate_list:
+                    error_rate_list.append((x[0]))
 
 
 double_copy = []
@@ -39,19 +39,19 @@ for rate in error_rate_list:
 
 for dirname in os.listdir(resultDataDir):
     d = os.path.join(resultDataDir + os.sep, dirname)
-    if(dirname==cmd):
-        for filename in os.listdir(d):
-            f = os.path.join(d + os.sep, filename)
-            # checking if it is a file
-            if os.path.isfile(f):
-                input = open(f, "r")
-                content = input.read()
-                x = re.findall("Error rate: \d.\d\d|Error rate: \d.\d|Error rate: \d\d.\d\d", content)
-                if(len(x) != 0):
-                    for dic_el in dict_list:
-                        if x[0] in dic_el.keys():
-                            dic_el[x[0]] += 1
-                            break
+    # if(dirname==cmd):
+    for filename in os.listdir(d):
+        f = os.path.join(d + os.sep, filename)
+        # checking if it is a file
+        if os.path.isfile(f):
+            input = open(f, "r")
+            content = input.read()
+            x = re.findall("Error rate: \d.\d\d|Error rate: \d.\d|Error rate: \d\d.\d\d", content)
+            if(len(x) != 0):
+                for dic_el in dict_list:
+                    if x[0] in dic_el.keys():
+                        dic_el[x[0]] += 1
+                        break
 
 
 summarized = 0
@@ -70,7 +70,7 @@ over_ten = 0
 
 for elem in dict_list:
     for key in elem.keys():
-        if(key >= "Error rate: 0.1" and key <= "Error rate: 0.99"):
+        if(key >= "Error rate: 0.0" and key <= "Error rate: 0.99"):
             zero_to_one += elem[key]
         elif(key >= "Error rate: 1.0" and key <= "Error rate: 1.99"):
             one_to_two += elem[key]
@@ -96,7 +96,7 @@ for elem in dict_list:
     summarized += sum(elem.values())
         
 
-print("Error rate 0.1-0.99%: ", zero_to_one)
+print("Error rate 0.0-0.99%: ", zero_to_one)
 print("Error rate 1.0-1.99%: ", one_to_two)
 print("Error rate 2.0-2.99%: ", two_to_three)
 print("Error rate 3.0-3.99%: ", three_to_four)
