@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 	int char_position = 0;
 	int sample = 0;
 	vector<int> frequencies;
-	vector<int> histogram(100, 0);
+	vector<int> histogram(101, 0);
 	
 	
   cout << "Computing histogram... " << endl;
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 		{
 			frequencies.push_back(sample); //push back the current frequency and reset the counter
 			sample = 0;
-    }
+        }
 	}
 	indata.close();
 	
