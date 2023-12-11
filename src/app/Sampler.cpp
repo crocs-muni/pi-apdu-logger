@@ -19,13 +19,9 @@ void Sampler::sample()
 		wait = digitalRead(CARD_INPUT);
 	} while(wait == 0); // Wait for the card to be in HIGH state
 	
-	//printf("DBG: Card initialized. Sampling..\n");
 	for (int i=0; i<BUFF_SIZE; i++)
 	{
-		if(digitalRead(CARD_INPUT) == 0) // In case GPIO pin is connected to a npn transistor
-			buffer[i] = 1;
-		else
-			buffer[i] = 0;
+		buffer[i] = digitalRead(CARD_INPUT);
 		delayMicroseconds(1);
 	}
 	printf("DBG: Sampling finished.\n");

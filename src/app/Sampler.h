@@ -4,7 +4,7 @@
 #include <wiringPi.h>
 #include "FileManager.h"
 
-#define CARD_INPUT 26
+#define CARD_INPUT 23
 #define BUFF_SIZE 1000000
 
 #ifndef Sampler_H
