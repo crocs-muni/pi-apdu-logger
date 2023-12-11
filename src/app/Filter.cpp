@@ -1,17 +1,17 @@
 #include "Filter.h"
 
 Filter::Filter() {
-  fileManager = FileManager();
+	fileManager = FileManager();
 }
 
 void Filter::setSampleSize(double ss)
 {
-  this -> ssize = ss;
+	this -> ssize = ss;
 }
-    
+
 int Filter::determineBitRepetitions(int sstream)
 {
-  return round((double)sstream/ssize);
+	return round((double)sstream/ssize);
 }
 
 void Filter::countBitRepetitions()
@@ -24,10 +24,11 @@ void Filter::countBitRepetitions()
 	{ 
 		fileStream.get(current_bit); // count the number of occurences of the same character
 		count++;
-		
+
 		if(fileStream.eof()) break;
 
-		if(fileStream.peek() != current_bit) {
+		if(fileStream.peek() != current_bit)
+		{
 			p.first = count;
 			p.second = current_bit;
 			ssizes.push_back(p);
@@ -56,15 +57,18 @@ std::pair<int,int> Filter::findLongestPauses()
 int Filter::filterData(int start_index)
 {
 	int i = start_index; // Start index for the ssizes vector
-	
+
 	while(i < ssizes.size())
 	{
 		int repetitions = determineBitRepetitions(ssizes[i].first); // How many 0 or 1 to write to character frame
-		
+
+		if(repetitions == 0)  //case when the sample size is less than NON_ATR_SS
+		character.insert(character.end(), 1, ssizes[i].second);
+
 		/*
-				There cannot be more than 9 consecutive 1 in a character frame
-				Highest possible repetitions count for consecutive 1 bits is in the case of
-				character frame 0011111111 followed by 11 for the pause, making in total 11
+			There cannot be more than 9 consecutive 1 in a character frame
+			Highest possible repetitions count for consecutive 1 bits is in the case of
+			character frame 0011111111 followed by 11 for the pause, making in total 11
 		*/
 		if(ssizes[i].second == '1' && repetitions > 11)
 		{   
@@ -77,9 +81,8 @@ int Filter::filterData(int start_index)
 		}
 
 		if(ssizes[i].second == '1' && ssizes[i].first > ATR_SS*11) // Stop after reaching a long pause
-		{
 			return i+1;
-		}
+		
 		i++;
 	}  
 }
@@ -91,27 +94,27 @@ void Filter::filterWithVariableSS()
 	countBitRepetitions();
 	fileStream.close();
 	std::pair<int,int> pauses = findLongestPauses();
-	
 	setSampleSize(ATR_SS);
 	int index = 0;
-	
+
 	while(true)
 	{ 
-			// std::cout << "DBG: Filtering data with sample size: " << ssize <<std::endl;
-			int next_index = filterData(index);
-			index = next_index;
 
-			if(ssizes[index].first < ssize)
-				setSampleSize(ssizes[index].first);
+		int next_index = filterData(index);
+		index = next_index;
 
-			if(ssizes[index - 1].first == pauses.first) //after reaching the longest pause sample with non_atr ss
-				setSampleSize(NON_ATR_SS);
+		if(ssizes[index].first < ssize)
+			setSampleSize(ssizes[index].first);
 
-			if(ssizes[index - 1].first == pauses.second) { // The ATR is sent one more time at the end of the communication
-				setSampleSize(ATR_SS);
-				filterData(index);
-				break;
-			}
+		if(ssizes[index - 1].first == pauses.first) //after reaching the longest pause sample with non_atr ss
+			setSampleSize(NON_ATR_SS);
+
+		if(ssizes[index - 1].first == pauses.second) // The ATR is sent one more time at the end of the communication
+		{ 
+			setSampleSize(ATR_SS);
+			filterData(index);
+			break;
+		}
 	}
 
 	std::cout << "DBG: Opening filtered.txt for writing.."  <<std::endl;
