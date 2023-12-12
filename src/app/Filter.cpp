@@ -6,7 +6,7 @@ Filter::Filter() {
 
 void Filter::setSampleSize(double ss)
 {
-  this -> ssize = ss;
+  this->ssize=ss;
 }
 
 int Filter::determineBitRepetitions(int sstream)
@@ -62,29 +62,31 @@ int Filter::filterData(int start_index)
 
   while(i<ssizes.size())
   {
-    int repetitions=determineBitRepetitions(ssizes[i].first); // How many 0 or 1 to write to character frame
-
+    int char_count = ssizes[i].first;
+    char bit = ssizes[i].second;
+    int repetitions=determineBitRepetitions(char_count); // How many 0 or 1 to write to character frame
     /*
-    There cannot be more than 8 consecutive 1 in a character frame
-    Highest possible repetitions count for consecutive 1 bits is in the case of
-    character frame 0011111111 followed by 11 for the pause, making in total 10
+      There cannot be more than 8 consecutive 1 in a character frame.
+      Highest possible repetitions count for consecutive 1 bits is in the case of
+      character frame S:0 D:01111111 P:1 followed by 11 for the pause, making in total 10 + 1 bit for the rounding error
     */
-    if(ssizes[i].second=='1' && repetitions>10)
+    if(bit=='1' && repetitions>11)
     {   
-      character.insert(character.end(), 10, ssizes[i].second);
+      character.insert(character.end(), 11, bit);
       character.insert(character.end(), 1, '\n');
     }
     else 
     {
-      character.insert(character.end(), repetitions, ssizes[i].second);
+      character.insert(character.end(), repetitions, bit);
     }
 
-    if(ssizes[i].second=='1' && ssizes[i].first>ATR_SS*10) // Stop after reaching a long pause
+    if(bit=='1' && char_count>ssize*11) // Stop after reaching a long pause
     {
       return i+1;
     }
     i++;
-  }  
+  }
+  return 0;  
 }
 
 void Filter::filterWithVariableSS()
@@ -101,7 +103,7 @@ void Filter::filterWithVariableSS()
   while(true)
   { 
     int next_index = filterData(index);
-    if(next_index <= index)
+    if(next_index == 0)
     {
       break;
     }
