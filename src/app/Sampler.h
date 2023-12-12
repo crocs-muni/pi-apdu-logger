@@ -15,7 +15,7 @@ class Sampler
 	volatile int buffer[BUFF_SIZE];
 	std::fstream fileStream;
 	FileManager fileManager;
-
+	
 	public:
 	Sampler();
 	void sample();
