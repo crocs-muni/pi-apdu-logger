@@ -66,13 +66,13 @@ int Filter::filterData(int start_index)
 		character.insert(character.end(), 1, ssizes[i].second);
 
 		/*
-			There cannot be more than 9 consecutive 1 in a character frame
+			There cannot be more than 8 consecutive 1 in a character frame
 			Highest possible repetitions count for consecutive 1 bits is in the case of
-			character frame 0011111111 followed by 11 for the pause, making in total 11
+			character frame 0011111111 followed by 11 for the pause, making in total 10
 		*/
-		if(ssizes[i].second == '1' && repetitions > 11)
+		if(ssizes[i].second == '1' && repetitions > 10)
 		{   
-			character.insert(character.end(), 11, ssizes[i].second);
+			character.insert(character.end(), 10, ssizes[i].second);
 			character.insert(character.end(), 1, '\n');
 		}
 		else 
@@ -80,7 +80,7 @@ int Filter::filterData(int start_index)
 			character.insert(character.end(), repetitions, ssizes[i].second);
 		}
 
-		if(ssizes[i].second == '1' && ssizes[i].first > ATR_SS*11) // Stop after reaching a long pause
+		if(ssizes[i].second == '1' && ssizes[i].first > ATR_SS*10) // Stop after reaching a long pause
 			return i+1;
 		
 		i++;
