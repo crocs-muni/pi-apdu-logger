@@ -91,7 +91,6 @@ class BlockFrame
   }
 };
 
-
 class Logger 
 {
   std::string atr;
@@ -113,12 +112,10 @@ class Logger
   {
     this -> endAtr = endAtr.erase(endAtr.size() - 2);
   }
-
   std::string getATR()
   {
     return atr;
   }
-
   void updateAPDUs()
   {
     for (int i = 0; i < frames.size(); i++)
@@ -132,9 +129,9 @@ class Logger
       }
     }
   }
-  void updateBlockFrames(std::vector<std::string> fileContent)
+  void updateBlockFrames(std::vector<std::string> fileContent, int end)
   {
-    for (int i=5; i<fileContent.size()-1; i++) //skip atr + pts
+    for (int i=5; i<end; i++) //skip atr + pts + ifs
     { 
       std::string line = fileContent[i];
 
@@ -154,7 +151,6 @@ class Logger
 
     apdus.push_back(APDU(header, body, dataLen));
   }
-
   void addResponseAPDU(std::string infField, int prologueLen)
   {
     int dataLen = prologueLen - 4;
@@ -168,7 +164,6 @@ class Logger
     }
     apdus.push_back(APDU(header, body, dataLen));
   }
-
   void printLog()
   {
     std::cout << "# ATR: " <<  atr <<std::endl;
@@ -187,7 +182,7 @@ int main(int argc, char **argv)
   Sampler sampler = Sampler();
   Filter filter = Filter();
   Decoder decoder = Decoder();
-
+  
   sampler.sample();
   filter.filterWithVariableSS();
   decoder.decode();
@@ -195,11 +190,23 @@ int main(int argc, char **argv)
   FileManager fileManager = FileManager();
   std::fstream indata = fileManager.openFile(DECODED, std::ios::in);
   std::vector<std::string> fileContent = fileManager.readFile(indata);
+  indata.close();
 
   Logger logger = Logger();
-  logger.setATR(fileContent[0]);
-  logger.setEndATR(fileContent[fileContent.size() - 1]);
-  logger.updateBlockFrames(fileContent);
+  std::string firstLine = fileContent[0];
+  int lastIndex = fileContent.size()-1;
+  std::string lastLine = fileContent[lastIndex];
+
+  logger.setATR(firstLine);
+  if(lastLine.substr(0,2) == "3b")
+  {
+    logger.updateBlockFrames(fileContent, lastIndex);
+    logger.setEndATR(lastLine);
+  }
+  else
+  {
+    logger.updateBlockFrames(fileContent, fileContent.size());
+  }
   logger.updateAPDUs();
   logger.printLog();
 
