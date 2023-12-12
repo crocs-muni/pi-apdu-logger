@@ -6,7 +6,6 @@
 std::fstream FileManager::openFile(std::string file_path, std::ios_base::openmode mode)
 {
   std::fstream file;
-
   file.open(file_path, mode);
   if (!file.is_open()) 
   {
@@ -20,7 +19,6 @@ std::vector<std::string> FileManager::readFile(std::fstream &indata)
 {
   std::vector<std::string> lines;
   std::string line;
-
   while (std::getline(indata, line))
   { 
     lines.push_back(line);
