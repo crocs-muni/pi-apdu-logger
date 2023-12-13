@@ -21,100 +21,96 @@
 
 std::vector<int> calculateDigits(int number)
 {
-	std::vector<int> digits;
-	while(number > 0) 
-	{
-		digits.push_back(number % 10);
-		number/=10;
-	}
-	std::reverse(digits.begin(), digits.end());
-	return digits;
+  std::vector<int> digits;
+  while(number > 0) 
+  {
+    digits.push_back(number % 10);
+    number/=10;
+  }
+  std::reverse(digits.begin(), digits.end());
+  return digits;
 }
 
 char* constructFilename(std::vector<int> digits)
 {
-	char filename[] = "_data.txt";
-	char* fullname = (char *)malloc(digits.size() + strlen(filename) + 1);
-	for(int i=0; i < digits.size(); i++)
-	{
-		fullname[i] = digits[i] + '0';
-	}
-	strcat(fullname, filename);
-	return fullname;
+  char filename[] = "_data.txt";
+  char* fullname = (char *)malloc(digits.size() + strlen(filename) + 1);
+  for(int i = 0; i < digits.size(); i++)
+  {
+    fullname[i] = digits[i] + '0';
+  }
+  strcat(fullname, filename);
+  return fullname;
 }
 
 int main(int argc, char const* argv[])
 {
-	if(argc !=3)
-	{
-		printf("ERR: Invalid number of arguments!");
-		exit(EXIT_FAILURE);
-	}
+  if(argc !=3)
+  {
+    printf("ERR: Missing arguments! Usage: client <SERVER_ADDRESS> <SERVER_TCP_PORT>");
+    exit(EXIT_FAILURE);
+  }
 
-	int client_soc = -1;
-	struct sockaddr_in server_addr;
-	FILE *fp;
-	int ctr = 1; //sample counter
-	char* filename;
-	char syncbuf[] = "####";
-	char recvbuf[5] = {0};
-	char run[] = "./executables/pigpio_sampler ";
+  int client_soc = -1;
+  struct sockaddr_in server_addr;
+  FILE *fp;
+  int ctr = 1; //sample counter
+  char* filename;
+  char syncbuf[] = "####";
+  char recvbuf[5] = {0};
+  char run[] = "./build/sampler ";
 
-	//Create a socket for connecting to server
-	if ((client_soc = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
-	{
-		printf("ERR: Could not create socket: %s. Exiting..\n", strerror(errno));
-		exit(EXIT_FAILURE);
-	}
+  //Create a socket for connecting to server
+  if ((client_soc = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+  {
+    printf("ERR: Could not create socket: %s. Exiting..\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
 
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_addr.s_addr = inet_addr(argv[1]);  //server's IP address
-	server_addr.sin_port = htons(atoi(argv[2]));       //server's port number
-	
-	int connect_status = connect(client_soc, (struct sockaddr*)&server_addr, sizeof(server_addr));
-	if (connect_status < 0)
-	{
-		printf("ERR: Connecting to server failed.\n");
-		close(client_soc);
-		exit(EXIT_FAILURE);
-	} else
-	{
-			printf("INFO: Connection with the server established. \n");
-	}
+  server_addr.sin_family = AF_INET;
+  server_addr.sin_addr.s_addr = inet_addr(argv[1]);  //server's IP address
+  server_addr.sin_port = htons(atoi(argv[2]));       //server's port number
 
-	while(true)
-	{
-		std::vector<int> ctr_digits = calculateDigits(ctr);
-		filename = constructFilename(ctr_digits);
-		char* command;
-		command = (char *)malloc(strlen(run) + strlen(filename) + 1);
-		strcpy(command, run);
-		strcat(command, filename);  
-					
-		printf("INFO: Sending sync signal to the server.\n");
-		send(client_soc, syncbuf, strlen(syncbuf), 0);
-		printf("INFO: Capturing started..\n");
-		system(command); //start capturing
-		free(command);
-		free(filename);
+  int connect_status = connect(client_soc, (struct sockaddr*)&server_addr, sizeof(server_addr));
+  if (connect_status < 0)
+  {
+    printf("ERR: Connecting to server failed.\n");
+    close(client_soc);
+    exit(EXIT_FAILURE);
+  }
+  printf("INFO: Connection with the server established. \n");
 
-		printf("INFO: Awaiting server signal..\n");
-		memset(recvbuf, 0, sizeof(recvbuf)); //clear the buffer
-		recv(client_soc, recvbuf, sizeof(recvbuf),0);
-		printf(">> %s\n", recvbuf);
-					
-		if(strcmp(recvbuf, "STOP") == 0)
-		{
-			printf("INFO: Received stop signal from Windows. Exiting..\n");
-			break;
-		}
-		ctr +=1;
-		printf("INFO: Sleeping for 10 seconds..\n");
-		sleep(10); //waiting for the card to have 0 on the I/O pin
-	}
-	
-	//Close client socket
-	close(client_soc);
+  while(true)
+  {
+    std::vector<int> ctr_digits = calculateDigits(ctr);
+    filename = constructFilename(ctr_digits);
+    char* command;
+    command = (char *)malloc(strlen(run) + strlen(filename) + 1);
+    strcpy(command, run);
+    strcat(command, filename);  
 
-	exit(EXIT_SUCCESS);
+    printf("INFO: Sending sync signal to the server.\n");
+    send(client_soc, syncbuf, strlen(syncbuf), 0);
+    printf("INFO: Capturing started..\n");
+    system(command); //start capturing
+    free(command);
+    free(filename);
+
+    printf("INFO: Awaiting server signal..\n");
+    memset(recvbuf, 0, sizeof(recvbuf)); //clear the buffer
+    recv(client_soc, recvbuf, sizeof(recvbuf),0);
+    printf(">> %s\n", recvbuf);
+
+    if(strcmp(recvbuf, "STOP") == 0)
+    {
+      printf("INFO: Received stop signal from Windows. Exiting..\n");
+      break;
+    }
+    ctr +=1;
+    printf("INFO: Sleeping for 10 seconds..\n");
+    sleep(10); //waiting for the card to have 0 on the I/O pin
+  }
+
+  close(client_soc);
+  exit(EXIT_SUCCESS);
 }

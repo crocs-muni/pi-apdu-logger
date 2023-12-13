@@ -8,10 +8,6 @@
 #include "Decoder.h"
 #include "FileManager.h"
 
-/*
-* g++ -o ./executables/apduLogger ./source/Sampler.cpp ./source/Filter.cpp ./source/FileManager.cpp ./source/Decoder.cpp ./source/APDULogger.cpp -l wiringPi
-* */
-
 class APDU 
 {
   std::string header;

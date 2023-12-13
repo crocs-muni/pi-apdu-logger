@@ -28,7 +28,7 @@ std::vector<std::string> FileManager::readFile(std::fstream &indata)
 
 void FileManager::writeToFile(std::fstream &outdata, std::vector<char> data)
 {
-  for(auto it=data.begin(); it<data.end(); it++)
+  for(auto it = data.begin(); it < data.end(); it++)
   {
     outdata << *it;
   }
@@ -36,7 +36,7 @@ void FileManager::writeToFile(std::fstream &outdata, std::vector<char> data)
 
 void FileManager::writeToFile(std::fstream &outdata, std::string data)
 {
-  for(auto it=data.begin(); it<data.end(); it++)
+  for(auto it = data.begin(); it < data.end(); it++)
   {
     outdata << *it;
   }
@@ -44,7 +44,7 @@ void FileManager::writeToFile(std::fstream &outdata, std::string data)
 
 void FileManager::writeToFile(std::fstream &outdata, volatile int * buffer, int buffSize)
 {
-  for(int i=0; i<buffSize; i++)
+  for(int i = 0; i < buffSize; i++)
   {
     outdata << buffer[i];
   }

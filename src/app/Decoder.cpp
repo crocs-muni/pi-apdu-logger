@@ -38,7 +38,7 @@ void Decoder::determineCodingConvention(std::string byte)
 void Decoder::reverse(std::string& string, int end, int begin)
 {
 	if(end <= begin) return;
-    std::swap(string[begin],string[end]);
+  std::swap(string[begin],string[end]);
 	reverse(string,end-1, begin+1);
 }
 
@@ -47,7 +47,7 @@ std::string Decoder::convertToHex(std::string binary)
   if (getConvention() == direct)
   {
     //LSB is the first bit, MSB is the last bit in the original byte
-    reverse(binary, binary.length()-2, 1);
+    reverse(binary, binary.length() - 2, 1);
   }
   //discard 1st - start and 10th - parity bit
   int result = 0;
@@ -74,14 +74,13 @@ void Decoder::processByte(std::string data)
       pos--;
       pause = false;
     }
-
     std::string byte_str = data.substr(pos, 10);
     std::string hex_stream = convertToHex(byte_str);
 
-    if(hex_stream.length() == 1) hexDump+='0';
+    if(hex_stream.length() == 1) hexDump += '0';
     hexDump += hex_stream;
 
-    pos+=10;
+    pos += 10;
 
     if(data[pos] == '1')
     {
@@ -116,12 +115,11 @@ void Decoder::decode()
     exit(1);
   }
 
-  for (int i = 0; i<characters.size(); i++)
+  for (int i = 0; i < characters.size(); i++)
   {
     processByte(characters[i]);
-    hexDump+='\n';
+    hexDump += '\n';
   }
-
   std::cout << "DBG: Opening decoded.txt for writing.."  <<std::endl;
   fileStream = fileManager.openFile(DECODED, std::ios::out);
   std::cout << "DBG: Writing to file decoded.txt.."  <<std::endl;

@@ -6,7 +6,7 @@ Filter::Filter() {
 
 void Filter::setSampleSize(double ss)
 {
-  this->ssize=ss;
+  this -> ssize = ss;
 }
 
 int Filter::determineBitRepetitions(int sstream)
@@ -43,24 +43,21 @@ void Filter::countBitRepetitions()
 std::pair<int,int> Filter::findLongestPauses()
 {
   std::vector<int> pauses;
-
-  for(auto it=ssizes.begin(); it<ssizes.end(); it++)
+  for(auto it = ssizes.begin(); it < ssizes.end(); it++)
   {
-    if(it->second=='1')
+    if(it -> second == '1')
     {
-      pauses.push_back(it->first);
+      pauses.push_back(it -> first);
     }
   }
-
   sort(pauses.begin(), pauses.end(), std::greater<int>());
   return std::make_pair(pauses[0], pauses[1]);
 }
 
 int Filter::filterData(int start_index)
 {
-  int i=start_index; // Start index for the ssizes vector
-
-  while(i<ssizes.size())
+  int i = start_index; // Start index for the ssizes vector
+  while (i < ssizes.size())
   {
     int char_count = ssizes[i].first;
     char bit = ssizes[i].second;
@@ -70,7 +67,7 @@ int Filter::filterData(int start_index)
       Highest possible repetitions count for consecutive 1 bits is in the case of
       character frame S:0 D:01111111 P:1 followed by 11 for the pause, making in total 10 + 1 bit for the rounding error
     */
-    if(bit=='1' && repetitions>11)
+    if(bit == '1' && repetitions > 11)
     {   
       character.insert(character.end(), 11, bit);
       character.insert(character.end(), 1, '\n');
@@ -79,8 +76,7 @@ int Filter::filterData(int start_index)
     {
       character.insert(character.end(), repetitions, bit);
     }
-
-    if(bit=='1' && char_count>ssize*11) // Stop after reaching a long pause
+    if(bit == '1' && char_count > ssize*11) // Stop after reaching a long pause
     {
       return i+1;
     }
@@ -99,7 +95,6 @@ void Filter::filterWithVariableSS()
 
   setSampleSize(ATR_SS);
   int index = 0;
-
   while(true)
   { 
     int next_index = filterData(index);
@@ -123,7 +118,6 @@ void Filter::filterWithVariableSS()
       break;
     }
   }
-
   std::cout << "DBG: Opening filtered.txt for writing.."  <<std::endl;
   fileStream = fileManager.openFile(FILTERED, std::ios::out);
   std::cout << "DBG: Writing to file filtered.txt.."  <<std::endl;
