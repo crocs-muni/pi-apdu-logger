@@ -13,7 +13,7 @@ card = "javacos_a40"
 rawDataDir = f"..\\tested_cards\\{card}\\raw\\{cmd}" # raw bit stream as captured by RaspberryPi
 filteredDataDir = f"..\\tested_cards\\{card}\\filtered\\{cmd}" # filtered bit stream
 decodedDataDir = f"..\\tested_cards\\{card}\\decoded\\{cmd}" # hex dump
-gpDataDir = f"..\\tested_cards\\{card}\\gp_out\\GP{ctr}_formatted.txt"
+gpDataDir = f"..\\tested_cards\\{card}\\gp_out"
 resultDataDir = f"..\\tested_cards\\{card}\\results\\{cmd}" # comparison result -> GP output vs. RaspberryPi captured output
  
 def execute_cmnd_in_dir(directory:str, executable:str, outDir:str, args:list[str]):
@@ -30,23 +30,19 @@ def filter_files():
 def decode_files():
     execute_cmnd_in_dir(filteredDataDir, "decoder.exe", "decoded", ["_f", "_d"])
 
+def format_gp_out():
+  for file in os.listdir(gpDataDir):
+    os.system(f'cmd /c python .\\formatFile.py "{gpDataDir}\\GP{ctr}_out" "{gpDataDir}\\GP{ctr}_formatted.txt"')
+
 def compare_outputs():
     for filename in os.listdir(decodedDataDir):
         f = os.path.join(decodedDataDir + os.sep, filename)
         if os.path.isfile(f):
             name = str(filename).replace("data_d", "result")
-            os.system(f'cmd /c python .\\compareFiles.py "{gpDataDir}" "{f}" "{resultDataDir}\\{name}"')
+            os.system(f'cmd /c python .\\compareFiles.py "{gpDataDir}\\GP{ctr}_formatted.txt" "{f}" "{resultDataDir}\\{name}"')
 
 
 filter_files()
 decode_files()
+format_gp_out()
 compare_outputs()
-
-# format the GP output, remove everything to leave hex dump
-# ctr = 1
-# for filename in os.listdir(gpDataDir):
-#     f = os.path.join(gpDataDir + os.sep, filename)
-#     # checking if it is a file
-#     if os.path.isfile(f):
-#         os.system(f'cmd /c python .\\src\\workflow\\formatFile.py "{f}" "data/gp_out/GP{ctr}_formatted.txt"')
-#     ctr+=1
